@@ -14,6 +14,7 @@ import HealthProfile from "./pages/HealthProfile";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import Emergency from "./pages/Emergency";
+import FaceScan from "./pages/FaceScan";
 
 const queryClient = new QueryClient();
 
@@ -54,10 +55,11 @@ const NavigationHandler = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (loading) return;
 
-    const publicPaths = ["/", "/login", "/register", "/Docs", "/forgot-password", "/reset-password","/emergency"];
+    const publicPaths = ["/", "/login", "/register", "/Docs", "/forgot-password", "/reset-password", "/FaceScan"];
+    const isPublic = publicPaths.some(path => location.pathname.startsWith(path)) || location.pathname.startsWith("/emergency/");
     const lastVisitedPath = localStorage.getItem("lastVisitedPath") || "/";
 
-    if (!isAuthenticated && !publicPaths.includes(location.pathname)) {
+    if (!isAuthenticated && !isPublic && !publicPaths.includes(location.pathname)) {
       localStorage.setItem("lastVisitedPath", location.pathname);
       navigate("/login", { replace: true });
     } else if (isAuthenticated && publicPaths.includes(location.pathname) && location.pathname !== "/") {
@@ -75,6 +77,7 @@ const AppRoutes = () => (
     <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
     <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
     <Route path="/emergency/:userId" element={<Emergency />} />
+    <Route path="/FaceScan" element={<FaceScan />} />
 
     <Route path="/dashboard" element={
       <ProtectedRoute>

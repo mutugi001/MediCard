@@ -18,7 +18,8 @@ Route::post('/login', LoginController::class);
 Route::post('/logout', LogoutController::class)->middleware('auth:sanctum');
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);
-Route::get('/{userId}/show', [DetailsController::class, 'show']);
+Route::get('/{userId}/show', [DetailsController::class, 'show'])->name('api.show');
+Route::post('/faceMatch', [DetailsController::class, 'faceMatch']);
 
 
     Route::middleware([
@@ -30,5 +31,8 @@ Route::get('/{userId}/show', [DetailsController::class, 'show']);
         Route::post('/store', 'store')->name('details.store');
         Route::post('/{details}/update', 'update')->name('details.update');
         Route::delete('/{details}/destroy', 'destroy')->name('details.destroy');
+        // Route::post('/register-face', 'registerFace')->name('details.registerFace');
+        // Route::get('/faceRecognition', 'faceRecognition')->name('details.faceRecognition');
+
     });
 });

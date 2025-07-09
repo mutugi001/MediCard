@@ -149,7 +149,7 @@ const Dashboard = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Health Guardian
+                  MediCard
                 </h1>
                 <p className="text-sm text-gray-600">Your Digital Health Companion</p>
               </div>

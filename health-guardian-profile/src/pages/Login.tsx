@@ -26,7 +26,7 @@ const Login = () => {
       if (success) {
         toast({
           title: "Welcome back!",
-          description: "Successfully logged in to Health Guardian.",
+          description: "Successfully logged in to MediCard.",
         });
         navigate('/dashboard');
       } else {
@@ -68,7 +68,7 @@ const Login = () => {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Health Guardian
+            MediCard
           </CardTitle>
           <CardDescription className="text-lg text-gray-600 mt-2">
             Sign in to access your medical profile

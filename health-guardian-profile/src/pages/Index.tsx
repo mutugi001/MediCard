@@ -21,7 +21,7 @@ const Index = () => {
               </div>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Health Guardian
+              MediCard
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Your digital medical ID for emergency situations. Store critical health information 
@@ -45,6 +45,9 @@ const Index = () => {
                   <Button asChild variant="outline" size="lg">
                     <Link to="/login">Sign In</Link>
                   </Button>
+                   <Button asChild variant="outline" size="lg">
+                    <Link to="/FaceScan">Face Scan</Link>
+                  </Button>
                 </>
               )}
             </div>
@@ -57,7 +60,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Why Health Guardian?
+              Why MediCard?
             </h2>
             <p className="text-xl text-gray-600">
               Designed for emergency situations when you can't speak for yourself
@@ -132,7 +135,7 @@ const Index = () => {
               Essential Medical Information
             </h2>
             <p className="text-xl text-gray-600">
-              Include these critical details in your Health Guardian profile
+              Include these critical details in your MediCard profile
             </p>
           </div>
           
@@ -169,7 +172,7 @@ const Index = () => {
             Ready to Create Your Medical ID?
           </h2>
           <p className="text-xl text-gray-600 mb-8">
-            Join thousands who have prepared for emergency situations with Health Guardian
+            Join thousands who have prepared for emergency situations with MediCard
           </p>
           {!isAuthenticated && (
             <Button asChild size="lg">

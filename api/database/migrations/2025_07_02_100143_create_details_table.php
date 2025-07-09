@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('details', function (Blueprint $table) {
             $table->id();
-            $table->foreignUuid('user_id');
+            $table->foreignUuid('user_id')->primary()->constrained('users')->onDelete('cascade');
             $table->string('firstname');
             $table->string('lastname');
             $table->dateTime('dateOfBirth');

@@ -1,4 +1,5 @@
 import axios from 'axios'; // Import AxiosInstance type
+import { AxiosInstance } from 'axios'; // Import AxiosInstance type for explicit typing
 
 // Get backend URL from environment variables
 const API_BASE_URL: string = import.meta.env.VITE_BACKEND_URL

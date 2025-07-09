@@ -37,7 +37,7 @@ const Register = () => {
       const success = await register(email, password, password_confirmation, name);
       if (success) {
         toast({
-          title: "Welcome to Health Guardian!",
+          title: "Welcome to MediCard!",
           description: "Your account has been created successfully.",
         });
         navigate('/profile');
@@ -68,7 +68,7 @@ const Register = () => {
               <UserPlus className="h-8 w-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">Join Health Guardian</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-900">Join MediCard</CardTitle>
           <CardDescription>Create your medical profile for emergency preparedness</CardDescription>
         </CardHeader>
         <CardContent>
