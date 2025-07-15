@@ -23,6 +23,7 @@
 - 📄 Health profile creation with photo upload
 - 🖼️ Profile photo preview & storage
 - 🚨 Emergency QR code for public access
+- 🧠 Facial recognition for identity matching
 - 🔐 Auth-protected routes and pages
 - 🌐 RESTful API built with Laravel
 
@@ -83,12 +84,36 @@ cp .env.example .env
 # Run the app
 npm run dev
 ```
+### 3. Face Recognition API
+```bash
+cd ../face-api
+
+# Setup and activate virtualenv (optional)
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the API
+uvicorn main:app --reload --host 0.0.0.0 --port 8001
+```
 
 ## 🖼️ Profile Photos
 
 - Images are uploaded via <input type="file" /> and sent as multipart/form-data.
 - Laravel stores them in /public/profile_photos.
 - URLs are saved in the DB and used for preview.
+
+## 🧠 Face Matching
+  When a photo is uploaded:
+  1. Laravel stores the image and sends it to FastAPI.
+  
+  2. FastAPI compares it with stored encodings in the database.
+  
+  3. If a match is found, the matching patient’s ID is returned.
+  
+  4. The React app redirects to /emergency/:userId to show patient data.
 
 ## 🚨 Emergency Access
 
