@@ -90,7 +90,7 @@ class DetailsController extends Controller
             'file',
             fopen($fullPath, 'r'),
             'face.jpg'
-        )->post("http://127.0.0.1:8001/register-face/{$userId}");
+        )->post("http://fastapi-face:8001/register-face/{$userId}");
 
         response()->json([
             'success' => true,
@@ -191,7 +191,7 @@ class DetailsController extends Controller
             'file',
             fopen($fullPath, 'r'),
             'face.jpg'
-        )->post("http://127.0.0.1:8001/match");
+        )->post("http://fastapi-face:8001/match");
 
         $patientId = $response->json('patient_id');
 
