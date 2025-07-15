@@ -6,6 +6,14 @@ until php artisan migrate --force; do
   sleep 2
 done
 
+# Ensure APP_KEY is set
+if ! grep -q "^APP_KEY=" .env || [ -z "$(grep "^APP_KEY=" .env | cut -d '=' -f2)" ]; then
+  echo "Generating new APP_KEY..."
+  php artisan key:generate
+else
+  echo "APP_KEY already set."
+fi
+
 php artisan cache:clear
 php artisan config:cache
 php artisan route:clear
