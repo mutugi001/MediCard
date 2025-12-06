@@ -1,4 +1,3 @@
-# render.yaml - recommended (image-backed services + managed MySQL)
 services:
   - type: web
     name: medcard-frontend
@@ -34,10 +33,10 @@ services:
         fromDatabase:
           name: medcard-db
           property: password
-    disks:
-      - name: backend-data
-        mountPath: /app/storage
-        sizeGB: 1
+    disk:
+      name: backend-data
+      mountPath: /app/storage
+      sizeGB: 1
     plan: free
 
   - type: worker
@@ -55,5 +54,5 @@ services:
 databases:
   - name: medcard-db
     databaseName: medcard
-    plan: free
     user: medcard_user
+    plan: free
