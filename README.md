@@ -1,6 +1,6 @@
-# 🩺 Health Guardian
+# 🩺 MediCard
 
-**Health Guardian** is a modern web application that allows users to securely manage and access their medical profiles. It includes features such as user authentication, medical data management, emergency QR codes, and profile photo uploads.
+**MediCard** is a modern web application that allows users to securely manage and access their medical profiles. It includes features such as user authentication, medical data management, emergency QR codes, and profile photo uploads.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Laravel](https://img.shields.io/badge/backend-Laravel-red)
