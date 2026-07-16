@@ -43,9 +43,9 @@ return [
         ],
         'mongodb' => [
             'driver' => 'mongodb',
-            'dsn' => env('MONGODB_URI'),
+            'dsn' => env('DB_URL'),
             'database' => env('DB_DATABASE'),
-],
+            ],
 
         'mysql' => [
             'driver' => 'mysql',
