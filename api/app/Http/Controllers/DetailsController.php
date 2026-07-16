@@ -90,13 +90,16 @@ class DetailsController extends Controller
             'file',
             fopen($fullPath, 'r'),
             'face.jpg'
-        )->post("http://fastapi-face:8001/register-face/{$userId}");
+        )->post("http://localhost:8001/register-face/{$userId}");
 
         response()->json([
             'success' => true,
             'message' => 'Face recognition request sent successfully',
             'response' => $response->json()
         ], 200);
+
+
+
 
         // Optionally, log or check FastAPI response
         if (!$response->successful()) {
@@ -191,12 +194,20 @@ class DetailsController extends Controller
             'file',
             fopen($fullPath, 'r'),
             'face.jpg'
-        )->post("http://fastapi-face:8001/match");
+        )->post("http://localhost:8001/match");
 
         $patientId = $response->json('patient_id');
 
         $user = User::where('id', $patientId)->first();
         $userId = $user->id;
+
+       //delete the captured image after processing
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        } else {
+            return response()->json(['error' => 'Image file not found for deletion'], 404);
+        }
+        
         return response()->json([
             'success' => true,
             'message' => 'Face match request sent successfully',

@@ -3,12 +3,19 @@
 namespace App\Models;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use MongoDB\Laravel\Eloquent\Model;
 
 class Details extends Model
 {
+    protected $connection = 'mongodb';
+
     protected $table = 'details';
+
+    protected $casts = [
+        'user_id' => 'string',
+        'dateOfBirth' => 'datetime',
+    ];
 
     protected $fillable = [
         'user_id',

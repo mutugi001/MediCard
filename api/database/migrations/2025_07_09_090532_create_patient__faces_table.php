@@ -1,29 +1,26 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use MongoDB\Laravel\Schema\Blueprint;
 
 return new class extends Migration
 {
     /**
      * Run the migrations.
      */
-  public function up(): void
-{
-    Schema::create('patient_faces', function (Blueprint $table) {
-        $table->id(); // Auto-incrementing primary key
-        $table->foreignUuid('patient_id'); // Foreign UUID (adjust type to match patients table)
-        $table->binary('encoding'); // For storing the face encoding as binary blob
-        $table->timestamps();
-       });
-}
+    public function up(): void
+    {
+        Schema::connection('mongodb')->create('patient_faces', function (Blueprint $collection): void {
+            $collection->index('patient_id');
+        });
+    }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('patient__faces');
+        Schema::connection('mongodb')->dropIfExists('patient_faces');
     }
 };

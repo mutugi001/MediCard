@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'mongodb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -40,6 +40,11 @@ return [
             'busy_timeout' => null,
             'journal_mode' => null,
             'synchronous' => null,
+        ],
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => env('MONGODB_URL', env('MONGODB_URI', env('DB_URL'))),
+            'database' => env('MONGODB_DATABASE', env('DB_DATABASE', 'laravel')),
         ],
 
         'mysql' => [

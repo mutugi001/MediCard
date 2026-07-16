@@ -207,7 +207,7 @@ const FaceScan = () => {
                 <>
                   <Button onClick={savePhoto} disabled={isLoading} size="lg" className="bg-green-600 hover:bg-green-700">
                     <Check className="h-5 w-5 mr-2" />
-                    {isLoading ? "Saving..." : "Save Photo"}
+                    {isLoading ? "Checking..." : "check Photo"}
                   </Button>
                   <Button onClick={retakePhoto} variant="outline" size="lg">
                     <RotateCcw className="h-5 w-5 mr-2" />

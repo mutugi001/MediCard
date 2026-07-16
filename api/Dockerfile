@@ -1,45 +1,37 @@
-FROM ubuntu:latest
+FROM php:8.3-cli-bookworm
 
-RUN apt-get update && apt-get install -y \
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    APP_ENV=production \
+    APP_DEBUG=false
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
-    nano \
     curl \
-    wget \
     unzip \
-    lsb-release \
-    gnupg2 \
-    ca-certificates \
-    apt-transport-https \
-    software-properties-common
+    libicu-dev \
+    libzip-dev \
+    libxml2-dev \
+    libonig-dev \
+    libcurl4-openssl-dev \
+    && docker-php-ext-install bcmath intl mbstring pdo_mysql zip opcache xml curl \
+    && pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN add-apt-repository ppa:ondrej/php
-RUN apt install php8.2 -y
-RUN apt install php8.2-bcmath php8.2-fpm php8.2-xml php8.2-mysql \
-    php8.2-zip php8.2-intl php8.2-ldap php8.2-gd \
-    php8.2-cli php8.2-bz2 php8.2-curl php8.2-mbstring \
-    php8.2-pgsql php8.2-opcache php8.2-soap php8.2-cgi -y
-
-RUN curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
-RUN php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
-RUN chmod +x /usr/local/bin/composer
-RUN rm /tmp/composer-setup.php
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
 COPY . .
-RUN chmod +x entrypoint.sh
 
+RUN chmod +x entrypoint.sh \
+    && mkdir -p storage/logs bootstrap/cache \
+    && chown -R www-data:www-data /app
 
-RUN ls -la
+EXPOSE 10000
 
-RUN composer install
-# RUN composer dump-autoload
-# ENV APP_KEY=base64:/Y0UAZit9Qq8rqfecq1tdO5ZmxRzCwh0aIIZeWiSwQA=
-
-# RUN php artisan key:generate
-
-EXPOSE 8000
-
-# COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 

@@ -2,21 +2,25 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Details;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use MongoDB\Laravel\Auth\User as MongoAuthenticatable;
 
 
 
-class User extends Authenticatable
+class User extends MongoAuthenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens;
+
+    protected $connection = 'mongodb';
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.
@@ -52,8 +56,8 @@ class User extends Authenticatable
         ];
     }
 
-   public function details(): HasOne
-{
-    return $this->hasOne(Details::class);
-}
+    public function details(): HasOne
+    {
+        return $this->hasOne(Details::class);
+    }
 }
