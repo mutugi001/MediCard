@@ -1,4 +1,4 @@
-FROM php:8.3-cli-bookworm
+FROM php:8.4-cli
 
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     APP_ENV=production \
