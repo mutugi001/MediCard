@@ -1,13 +1,16 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 from dotenv import load_dotenv
+from pymongo import MongoClient
 
-# Replace with your credentials
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(bind=engine)
+MONGODB_URI = os.getenv("MONGODB_URI") or os.getenv("MONGODB_URL")
+MONGODB_DATABASE = os.getenv("MONGODB_DATABASE") or os.getenv("DB_DATABASE") or "medicard"
 
-Base = declarative_base()
+if not MONGODB_URI:
+	raise RuntimeError("MONGODB_URI or MONGODB_URL must be set")
+
+client = MongoClient(MONGODB_URI)
+database = client[MONGODB_DATABASE]
+
+patient_faces_collection = database["patient_faces"]

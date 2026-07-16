@@ -3,8 +3,8 @@ from fastapi import UploadFile, File, HTTPException
 from fastapi import FastAPI
 import face_recognition
 import io
-from sqlalchemy.orm import Session
-from db import SessionLocal
+from datetime import datetime
+from db import patient_faces_collection
 from models import PatientFace
 from uuid import UUID
 from PIL import Image, ImageEnhance, ImageOps
@@ -185,28 +185,26 @@ async def register_face(patient_id: UUID, file: UploadFile = File(...)):
     if encoding is None:
         return {"success": False, "message": "Failed to encode face."}
     
-    encoding_bytes = encoding.tobytes()
-    
-    # Store in database
-    db: Session = SessionLocal()
-    try:
-        face_entry = PatientFace(patient_id=patient_id_str, encoding=encoding_bytes)
-        db.add(face_entry)
-        db.commit()
-        
-        # Count total encodings for this patient
-        encoding_count = db.query(PatientFace).filter(
-            PatientFace.patient_id == patient_id_str
-        ).count()
-        
-        return {
-            "success": True,
-            "message": "Face registered successfully.",
-            "total_encodings": encoding_count,
-            "tip": "For best accuracy, register 3-5 photos with different lighting/angles."
-        }
-    finally:
-        db.close()
+    face_entry = PatientFace(
+        patient_id=patient_id_str,
+        encoding=encoding.astype(np.float64).tolist(),
+        created_at=datetime.utcnow(),
+    )
+
+    patient_faces_collection.insert_one({
+        "patient_id": face_entry.patient_id,
+        "encoding": face_entry.encoding,
+        "created_at": face_entry.created_at,
+    })
+
+    encoding_count = patient_faces_collection.count_documents({"patient_id": patient_id_str})
+
+    return {
+        "success": True,
+        "message": "Face registered successfully.",
+        "total_encodings": encoding_count,
+        "tip": "For best accuracy, register 3-5 photos with different lighting/angles."
+    }
 
 
 @app.post("/match")
@@ -244,67 +242,62 @@ async def match_face(file: UploadFile = File(...)):
     if unknown_encoding is None:
         return {"match": False, "reason": "Failed to encode face."}
     
-    # Query all registered faces
-    db: Session = SessionLocal()
-    try:
-        all_faces = db.query(PatientFace).all()
-        
-        if not all_faces:
-            return {"match": False, "reason": "No registered faces in database."}
-        
-        # Group encodings by patient for multi-encoding matching
-        patient_encodings = {}
-        for face in all_faces:
-            pid = face.patient_id
-            if pid not in patient_encodings:
-                patient_encodings[pid] = []
-            known_encoding = np.frombuffer(face.encoding, dtype=np.float64)
-            patient_encodings[pid].append(known_encoding)
-        
-        # Find best match across all patients
-        best_patient_id = None
-        best_distance = float("inf")
-        best_match_count = 0  # How many encodings matched for this patient
-        
-        for patient_id, encodings in patient_encodings.items():
-            # Calculate distance to each encoding for this patient
-            distances = face_recognition.face_distance(encodings, unknown_encoding)
-            
-            # Use minimum distance (best match) for this patient
-            min_distance = np.min(distances)
-            
-            # Count how many encodings are within threshold (for confidence)
-            match_count = np.sum(distances < THRESHOLD_LOW_CONFIDENCE)
-            
-            # Prefer patient with lowest distance, or more matching encodings if tied
-            if min_distance < best_distance or (
-                min_distance == best_distance and match_count > best_match_count
-            ):
-                best_distance = min_distance
-                best_patient_id = patient_id
-                best_match_count = match_count
-        
-        # Calculate confidence and level
-        confidence, level = calculate_match_confidence(best_distance)
-        
-        if level != "no_match":
-            return {
-                "match": True,
-                "patient_id": best_patient_id,
-                "confidence": confidence,
-                "confidence_level": level,
-                "distance": round(best_distance, 4),
-                "matching_encodings": int(best_match_count)
-            }
-        else:
-            return {
-                "match": False,
-                "reason": "No match found above confidence threshold.",
-                "best_distance": round(best_distance, 4),
-                "best_confidence": confidence
-            }
-    finally:
-        db.close()
+    all_faces = list(patient_faces_collection.find({}, {"patient_id": 1, "encoding": 1, "_id": 0}))
+
+    if not all_faces:
+        return {"match": False, "reason": "No registered faces in database."}
+
+    # Group encodings by patient for multi-encoding matching
+    patient_encodings = {}
+    for face in all_faces:
+        pid = face["patient_id"]
+        if pid not in patient_encodings:
+            patient_encodings[pid] = []
+        known_encoding = np.array(face["encoding"], dtype=np.float64)
+        patient_encodings[pid].append(known_encoding)
+
+    # Find best match across all patients
+    best_patient_id = None
+    best_distance = float("inf")
+    best_match_count = 0  # How many encodings matched for this patient
+
+    for patient_id, encodings in patient_encodings.items():
+        # Calculate distance to each encoding for this patient
+        distances = face_recognition.face_distance(encodings, unknown_encoding)
+
+        # Use minimum distance (best match) for this patient
+        min_distance = np.min(distances)
+
+        # Count how many encodings are within threshold (for confidence)
+        match_count = np.sum(distances < THRESHOLD_LOW_CONFIDENCE)
+
+        # Prefer patient with lowest distance, or more matching encodings if tied
+        if min_distance < best_distance or (
+            min_distance == best_distance and match_count > best_match_count
+        ):
+            best_distance = min_distance
+            best_patient_id = patient_id
+            best_match_count = match_count
+
+    # Calculate confidence and level
+    confidence, level = calculate_match_confidence(best_distance)
+
+    if level != "no_match":
+        return {
+            "match": True,
+            "patient_id": best_patient_id,
+            "confidence": confidence,
+            "confidence_level": level,
+            "distance": round(best_distance, 4),
+            "matching_encodings": int(best_match_count)
+        }
+
+    return {
+        "match": False,
+        "reason": "No match found above confidence threshold.",
+        "best_distance": round(best_distance, 4),
+        "best_confidence": confidence
+    }
 
 
 @app.delete("/faces/{patient_id}")
@@ -314,19 +307,12 @@ async def delete_patient_faces(patient_id: UUID):
     """
     patient_id_str = str(patient_id)
     
-    db: Session = SessionLocal()
-    try:
-        deleted_count = db.query(PatientFace).filter(
-            PatientFace.patient_id == patient_id_str
-        ).delete()
-        db.commit()
-        
-        return {
-            "success": True,
-            "deleted_encodings": deleted_count
-        }
-    finally:
-        db.close()
+    result = patient_faces_collection.delete_many({"patient_id": patient_id_str})
+
+    return {
+        "success": True,
+        "deleted_encodings": result.deleted_count
+    }
 
 
 @app.get("/faces/{patient_id}/count")
@@ -336,16 +322,10 @@ async def get_patient_encoding_count(patient_id: UUID):
     """
     patient_id_str = str(patient_id)
     
-    db: Session = SessionLocal()
-    try:
-        count = db.query(PatientFace).filter(
-            PatientFace.patient_id == patient_id_str
-        ).count()
-        
-        return {
-            "patient_id": patient_id_str,
-            "encoding_count": count,
-            "recommendation": "3-5 encodings recommended for best accuracy." if count < 3 else "Good coverage."
-        }
-    finally:
-        db.close()
+    count = patient_faces_collection.count_documents({"patient_id": patient_id_str})
+
+    return {
+        "patient_id": patient_id_str,
+        "encoding_count": count,
+        "recommendation": "3-5 encodings recommended for best accuracy." if count < 3 else "Good coverage."
+    }

@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer,String, LargeBinary
-from db import Base
+from dataclasses import dataclass
+from datetime import datetime
+from typing import List, Optional
 
-class PatientFace(Base):
-    __tablename__ = "patient_faces"
 
-    id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(String(36), index=True)
-    encoding = Column(LargeBinary)
+@dataclass
+class PatientFace:
+    patient_id: str
+    encoding: List[float]
+    created_at: Optional[datetime] = None
