@@ -43,9 +43,9 @@ return [
         ],
         'mongodb' => [
             'driver' => 'mongodb',
-            'dsn' => env('MONGODB_URL', env('MONGODB_URI', env('DB_URL'))),
-            'database' => env('MONGODB_DATABASE', env('DB_DATABASE', 'laravel')),
-        ],
+            'dsn' => env('MONGODB_URI'),
+            'database' => env('DB_DATABASE'),
+],
 
         'mysql' => [
             'driver' => 'mysql',
