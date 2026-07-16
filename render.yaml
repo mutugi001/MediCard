@@ -1,0 +1,58 @@
+services:
+  - type: web
+    name: medcard-frontend
+    runtime: image
+    image:
+      url: collinsmutugi/medcard-frontend:v1.0
+    envVars:
+      - key: VITE_BACKEND_URL
+        value: https://medcard-backend.onrender.com
+    plan: free
+
+  - type: web
+    name: medcard-backend
+    runtime: image
+    image:
+      url: collinsmutugi/medcard-backend:v1.0
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: medcard-db
+          property: host
+      - key: DB_NAME
+        fromDatabase:
+          name: medcard-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: medcard-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: medcard-db
+          property: password
+    disk:
+      name: backend-data
+      mountPath: /app/storage
+      sizeGB: 1
+    plan: free
+
+  - type: worker
+    name: medcard-fastapi
+    runtime: image
+    image:
+      url: collinsmutugi/medcard-facerec:v1.1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: medcard-db
+          property: connectionString
+    plan: free
+
+databases:
+  - name: medcard-db
+    databaseName: medcard
+    user: medcard_user
+    plan: free
